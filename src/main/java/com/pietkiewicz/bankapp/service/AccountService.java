@@ -40,4 +40,23 @@ public class AccountService {
     private String generateNumber() {
         return "ACC" + (100000 + new Random().nextInt(900000));
     }
+
+
+    public Account deposit(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        account.setBalance(account.getBalance().add(amount));
+        return accountRepository.save(account);
+    }
+
+    public Account withdraw(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        account.setBalance(account.getBalance().subtract(amount));
+        return accountRepository.save(account);
+    }
 }
