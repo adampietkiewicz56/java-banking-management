@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.pietkiewicz.bankapp.dto.CreateUserRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import com.pietkiewicz.bankapp.dto.LoginRequest;
 
 @RestController
 @RequestMapping("/users")
@@ -30,5 +31,9 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+    @PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+        return userService.login(request.getEmail(), request.getPassword());
     }
 }
