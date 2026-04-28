@@ -5,6 +5,7 @@ import com.pietkiewicz.bankapp.entity.Account;
 import com.pietkiewicz.bankapp.service.AccountService;
 import org.springframework.web.bind.annotation.*;
 import com.pietkiewicz.bankapp.dto.AmountRequest;
+import com.pietkiewicz.bankapp.dto.TransferRequest;
 
 import java.util.List;
 
@@ -38,5 +39,16 @@ public class AccountController {
     public Account withdraw(@PathVariable Long id,
                             @RequestBody AmountRequest request) {
         return accountService.withdraw(id, request.getAmount());
+    }
+
+    @PostMapping("/transfer")
+    public String transfer(@RequestBody TransferRequest request) {
+        accountService.transfer(
+                request.getFromAccountId(),
+                request.getToAccountId(),
+                request.getAmount()
+        );
+
+        return "Transfer completed";
     }
 }

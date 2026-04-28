@@ -4,6 +4,7 @@ import com.pietkiewicz.bankapp.entity.Account;
 import com.pietkiewicz.bankapp.entity.User;
 import com.pietkiewicz.bankapp.repository.AccountRepository;
 import com.pietkiewicz.bankapp.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -58,5 +59,20 @@ public class AccountService {
 
         account.setBalance(account.getBalance().subtract(amount));
         return accountRepository.save(account);
+    }
+    @Transactional
+    public void transfer(Long fromId, Long toId, BigDecimal amount) {
+        Account from = accountRepository.findById(fromId).orElseThrow();
+        Account to = accountRepository.findById(toId).orElseThrow();
+
+        if (from.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        from.setBalance(from.getBalance().subtract(amount));
+        to.setBalance(to.getBalance().add(amount));
+
+        accountRepository.save(from);
+        accountRepository.save(to);
     }
 }
