@@ -6,6 +6,9 @@ import com.pietkiewicz.bankapp.repository.AccountRepository;
 import com.pietkiewicz.bankapp.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import com.pietkiewicz.bankapp.entity.Transaction;
+import com.pietkiewicz.bankapp.entity.TransactionType;
+import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,11 +19,14 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final TransactionService transactionService;
 
     public AccountService(AccountRepository accountRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          TransactionService transactionService) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.transactionService = transactionService;
     }
 
     public Account createAccount(Long userId) {
@@ -47,7 +53,16 @@ public class AccountService {
         Account account = accountRepository.findById(accountId).orElseThrow();
 
         account.setBalance(account.getBalance().add(amount));
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+
+        Transaction tx = new Transaction();
+        tx.setType(TransactionType.DEPOSIT);
+        tx.setAmount(amount);
+        tx.setCreatedAt(LocalDateTime.now());
+        tx.setToAccountId(accountId);
+        transactionService.save(tx);
+
+        return savedAccount;
     }
 
     public Account withdraw(Long accountId, BigDecimal amount) {
@@ -58,8 +73,18 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance().subtract(amount));
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+
+        Transaction tx = new Transaction();
+        tx.setType(TransactionType.WITHDRAW);
+        tx.setAmount(amount);
+        tx.setCreatedAt(LocalDateTime.now());
+        tx.setFromAccountId(accountId);
+        transactionService.save(tx);
+
+        return savedAccount;
     }
+
     @Transactional
     public void transfer(Long fromId, Long toId, BigDecimal amount) {
         Account from = accountRepository.findById(fromId).orElseThrow();
@@ -74,5 +99,13 @@ public class AccountService {
 
         accountRepository.save(from);
         accountRepository.save(to);
+
+        Transaction tx = new Transaction();
+        tx.setType(TransactionType.TRANSFER);
+        tx.setAmount(amount);
+        tx.setCreatedAt(LocalDateTime.now());
+        tx.setFromAccountId(fromId);
+        tx.setToAccountId(toId);
+        transactionService.save(tx);
     }
 }
