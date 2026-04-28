@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.pietkiewicz.bankapp.entity.Transaction;
 import com.pietkiewicz.bankapp.entity.TransactionType;
 import java.time.LocalDateTime;
+import com.pietkiewicz.bankapp.exception.BadRequestException;
+import com.pietkiewicz.bankapp.exception.NotFoundException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,7 +52,7 @@ public class AccountService {
 
 
     public Account deposit(Long accountId, BigDecimal amount) {
-        Account account = accountRepository.findById(accountId).orElseThrow();
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException("Account not found"));
 
         account.setBalance(account.getBalance().add(amount));
         Account savedAccount = accountRepository.save(account);
@@ -66,10 +68,10 @@ public class AccountService {
     }
 
     public Account withdraw(Long accountId, BigDecimal amount) {
-        Account account = accountRepository.findById(accountId).orElseThrow();
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException("Account not found"));
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new BadRequestException("Insufficient funds");
         }
 
         account.setBalance(account.getBalance().subtract(amount));
@@ -87,11 +89,11 @@ public class AccountService {
 
     @Transactional
     public void transfer(Long fromId, Long toId, BigDecimal amount) {
-        Account from = accountRepository.findById(fromId).orElseThrow();
-        Account to = accountRepository.findById(toId).orElseThrow();
+        Account from = accountRepository.findById(fromId).orElseThrow(() -> new NotFoundException("Account not found"));
+        Account to = accountRepository.findById(toId).orElseThrow(() -> new NotFoundException("Account not found"));
 
         if (from.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new BadRequestException("Insufficient funds");
         }
 
         from.setBalance(from.getBalance().subtract(amount));
