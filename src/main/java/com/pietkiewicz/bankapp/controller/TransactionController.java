@@ -3,7 +3,8 @@ package com.pietkiewicz.bankapp.controller;
 import com.pietkiewicz.bankapp.entity.Transaction;
 import com.pietkiewicz.bankapp.service.TransactionService;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @RestController
@@ -17,7 +18,7 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> getAll() {
-        return transactionService.getAll();
+    public ResponseEntity<List<Transaction>> getAll() {
+        return ResponseEntity.ok(transactionService.getAll());
     }
 }

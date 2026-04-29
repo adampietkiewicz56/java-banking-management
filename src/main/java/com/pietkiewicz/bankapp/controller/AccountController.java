@@ -1,11 +1,13 @@
 package com.pietkiewicz.bankapp.controller;
 
-import com.pietkiewicz.bankapp.dto.CreateAccountRequest;
+import com.pietkiewicz.bankapp.dto.AmountRequestDTO;
+import com.pietkiewicz.bankapp.dto.CreateAccountRequestDTO;
+import com.pietkiewicz.bankapp.dto.TransferRequestDTO;
 import com.pietkiewicz.bankapp.entity.Account;
 import com.pietkiewicz.bankapp.service.AccountService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.pietkiewicz.bankapp.dto.AmountRequest;
-import com.pietkiewicz.bankapp.dto.TransferRequest;
 
 import java.util.List;
 
@@ -20,35 +22,40 @@ public class AccountController {
     }
 
     @PostMapping
-    public Account createAccount(@RequestBody CreateAccountRequest request) {
-        return accountService.createAccount(request.getUserId());
+    public ResponseEntity<Account> createAccount(@RequestBody CreateAccountRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(accountService.createAccount(request.getUserId()));
     }
 
     @GetMapping
-    public List<Account> getAllAccounts() {
-        return accountService.getAllAccounts();
+    public ResponseEntity<List<Account>> getAll() {
+        return ResponseEntity.ok(accountService.getAllAccounts());
     }
 
     @PostMapping("/{id}/deposit")
-    public Account deposit(@PathVariable Long id,
-                           @RequestBody AmountRequest request) {
-        return accountService.deposit(id, request.getAmount());
+    public ResponseEntity<Account> deposit(@PathVariable Long id,
+                                           @RequestBody AmountRequestDTO request) {
+        return ResponseEntity.ok(
+                accountService.deposit(id, request.getAmount())
+        );
     }
 
     @PostMapping("/{id}/withdraw")
-    public Account withdraw(@PathVariable Long id,
-                            @RequestBody AmountRequest request) {
-        return accountService.withdraw(id, request.getAmount());
+    public ResponseEntity<Account> withdraw(@PathVariable Long id,
+                                            @RequestBody AmountRequestDTO request) {
+        return ResponseEntity.ok(
+                accountService.withdraw(id, request.getAmount())
+        );
     }
 
     @PostMapping("/transfer")
-    public String transfer(@RequestBody TransferRequest request) {
+    public ResponseEntity<String> transfer(@RequestBody TransferRequestDTO request) {
         accountService.transfer(
                 request.getFromAccountId(),
                 request.getToAccountId(),
                 request.getAmount()
         );
 
-        return "Transfer completed";
+        return ResponseEntity.ok("Transfer completed");
     }
 }
