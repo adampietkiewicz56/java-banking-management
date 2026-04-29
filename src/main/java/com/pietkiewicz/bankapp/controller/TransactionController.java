@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/transactions")
@@ -18,7 +20,7 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAll() {
-        return ResponseEntity.ok(transactionService.getAll());
+    public ResponseEntity<Page<Transaction>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(transactionService.getAll(pageable));
     }
 }

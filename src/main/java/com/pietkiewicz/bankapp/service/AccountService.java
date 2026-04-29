@@ -11,6 +11,8 @@ import com.pietkiewicz.bankapp.entity.TransactionType;
 import java.time.LocalDateTime;
 import com.pietkiewicz.bankapp.exception.BadRequestException;
 import com.pietkiewicz.bankapp.exception.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -43,8 +45,8 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    public Page<Account> getAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable);
     }
 
     private String generateNumber() {

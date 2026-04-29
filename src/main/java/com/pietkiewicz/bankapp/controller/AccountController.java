@@ -8,6 +8,8 @@ import com.pietkiewicz.bankapp.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -28,8 +30,10 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Account>> getAll() {
-        return ResponseEntity.ok(accountService.getAllAccounts());
+    public ResponseEntity<Page<Account>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(
+                accountService.getAllAccounts(pageable)
+        );
     }
 
     @PostMapping("/{id}/deposit")
