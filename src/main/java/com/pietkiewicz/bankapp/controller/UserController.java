@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.pietkiewicz.bankapp.dto.UserResponseDTO;
 
 import java.util.List;
 
@@ -21,8 +22,10 @@ public class UserController {
         this.userService = userService;
     }
 
+
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequestDTO request) {
+    public ResponseEntity<UserResponseDTO> createUser(
+            @Valid @RequestBody CreateUserRequestDTO request) {
 
         User user = User.builder()
                 .fullName(request.getFullName())
@@ -30,13 +33,31 @@ public class UserController {
                 .password(request.getPassword())
                 .build();
 
+        User saved = userService.createUser(user);
+
+        UserResponseDTO response = UserResponseDTO.builder()
+                .id(saved.getId())
+                .fullName(saved.getFullName())
+                .email(saved.getEmail())
+                .build();
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUser(user));
+                .body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+
+        List<UserResponseDTO> users = userService.getAllUsers()
+                .stream()
+                .map(user -> UserResponseDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .build())
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping("/login")

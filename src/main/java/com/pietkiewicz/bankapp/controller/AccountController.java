@@ -1,17 +1,16 @@
 package com.pietkiewicz.bankapp.controller;
 
+import com.pietkiewicz.bankapp.dto.AccountResponseDTO;
 import com.pietkiewicz.bankapp.dto.AmountRequestDTO;
 import com.pietkiewicz.bankapp.dto.CreateAccountRequestDTO;
 import com.pietkiewicz.bankapp.dto.TransferRequestDTO;
 import com.pietkiewicz.bankapp.entity.Account;
 import com.pietkiewicz.bankapp.service.AccountService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
@@ -23,37 +22,58 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    private AccountResponseDTO map(Account account) {
+        return AccountResponseDTO.builder()
+                .id(account.getId())
+                .accountNumber(account.getAccountNumber())
+                .balance(account.getBalance())
+                .build();
+    }
+
     @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody CreateAccountRequestDTO request) {
+    public ResponseEntity<AccountResponseDTO> createAccount(
+            @RequestBody CreateAccountRequestDTO request) {
+
+        Account saved = accountService.createAccount(request.getUserId());
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountService.createAccount(request.getUserId()));
+                .body(map(saved));
     }
 
     @GetMapping
-    public ResponseEntity<Page<Account>> getAll(Pageable pageable) {
-        return ResponseEntity.ok(
-                accountService.getAllAccounts(pageable)
-        );
+    public ResponseEntity<Page<AccountResponseDTO>> getAll(Pageable pageable) {
+
+        Page<AccountResponseDTO> result = accountService
+                .getAllAccounts(pageable)
+                .map(this::map);
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{id}/deposit")
-    public ResponseEntity<Account> deposit(@PathVariable Long id,
-                                           @RequestBody AmountRequestDTO request) {
+    public ResponseEntity<AccountResponseDTO> deposit(
+            @PathVariable Long id,
+            @RequestBody AmountRequestDTO request) {
+
         return ResponseEntity.ok(
-                accountService.deposit(id, request.getAmount())
+                map(accountService.deposit(id, request.getAmount()))
         );
     }
 
     @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Account> withdraw(@PathVariable Long id,
-                                            @RequestBody AmountRequestDTO request) {
+    public ResponseEntity<AccountResponseDTO> withdraw(
+            @PathVariable Long id,
+            @RequestBody AmountRequestDTO request) {
+
         return ResponseEntity.ok(
-                accountService.withdraw(id, request.getAmount())
+                map(accountService.withdraw(id, request.getAmount()))
         );
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<String> transfer(@RequestBody TransferRequestDTO request) {
+    public ResponseEntity<String> transfer(
+            @RequestBody TransferRequestDTO request) {
+
         accountService.transfer(
                 request.getFromAccountId(),
                 request.getToAccountId(),
