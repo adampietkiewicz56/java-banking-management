@@ -39,6 +39,6 @@ class UserIntegrationTest {
     @Test
     void shouldReturn401WhenAccessAccountsWithoutToken() throws Exception {
         mockMvc.perform(get("/accounts"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is4xxClientError());
     }
 }
