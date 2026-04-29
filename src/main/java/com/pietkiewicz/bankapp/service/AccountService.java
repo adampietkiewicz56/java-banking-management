@@ -11,6 +11,8 @@ import com.pietkiewicz.bankapp.entity.TransactionType;
 import java.time.LocalDateTime;
 import com.pietkiewicz.bankapp.exception.BadRequestException;
 import com.pietkiewicz.bankapp.exception.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,16 +36,17 @@ public class AccountService {
     public Account createAccount(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        Account account = new Account();
-        account.setUser(user);
-        account.setBalance(BigDecimal.ZERO);
-        account.setAccountNumber(generateNumber());
+        Account account = Account.builder()
+                .user(user)
+                .balance(BigDecimal.ZERO)
+                .accountNumber(generateNumber())
+                .build();
 
         return accountRepository.save(account);
     }
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    public Page<Account> getAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable);
     }
 
     private String generateNumber() {
@@ -57,12 +60,12 @@ public class AccountService {
         account.setBalance(account.getBalance().add(amount));
         Account savedAccount = accountRepository.save(account);
 
-        Transaction tx = new Transaction();
-        tx.setType(TransactionType.DEPOSIT);
-        tx.setAmount(amount);
-        tx.setCreatedAt(LocalDateTime.now());
-        tx.setToAccountId(accountId);
-        transactionService.save(tx);
+        Transaction tx = Transaction.builder()
+                .type(TransactionType.DEPOSIT)
+                .amount(amount)
+                .createdAt(LocalDateTime.now())
+                .toAccountId(accountId)
+                .build();
 
         return savedAccount;
     }
@@ -77,12 +80,12 @@ public class AccountService {
         account.setBalance(account.getBalance().subtract(amount));
         Account savedAccount = accountRepository.save(account);
 
-        Transaction tx = new Transaction();
-        tx.setType(TransactionType.WITHDRAW);
-        tx.setAmount(amount);
-        tx.setCreatedAt(LocalDateTime.now());
-        tx.setFromAccountId(accountId);
-        transactionService.save(tx);
+        Transaction tx = Transaction.builder()
+                .type(TransactionType.WITHDRAW)
+                .amount(amount)
+                .createdAt(LocalDateTime.now())
+                .fromAccountId(accountId)
+                .build();
 
         return savedAccount;
     }
@@ -102,12 +105,12 @@ public class AccountService {
         accountRepository.save(from);
         accountRepository.save(to);
 
-        Transaction tx = new Transaction();
-        tx.setType(TransactionType.TRANSFER);
-        tx.setAmount(amount);
-        tx.setCreatedAt(LocalDateTime.now());
-        tx.setFromAccountId(fromId);
-        tx.setToAccountId(toId);
-        transactionService.save(tx);
+        Transaction tx = Transaction.builder()
+                .type(TransactionType.TRANSFER)
+                .amount(amount)
+                .createdAt(LocalDateTime.now())
+                .fromAccountId(fromId)
+                .toAccountId(toId)
+                .build();
     }
 }

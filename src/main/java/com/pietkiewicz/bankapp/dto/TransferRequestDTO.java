@@ -2,7 +2,7 @@ package com.pietkiewicz.bankapp.dto;
 
 import java.math.BigDecimal;
 
-public class TransferRequest {
+public class TransferRequestDTO {
 
     private Long fromAccountId;
     private Long toAccountId;

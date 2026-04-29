@@ -1,6 +1,6 @@
 package com.pietkiewicz.bankapp.dto;
 
-public class CreateAccountRequest {
+public class CreateAccountRequestDTO {
 
     private Long userId;
 

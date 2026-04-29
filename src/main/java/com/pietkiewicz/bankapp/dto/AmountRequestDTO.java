@@ -2,7 +2,7 @@ package com.pietkiewicz.bankapp.dto;
 
 import java.math.BigDecimal;
 
-public class AmountRequest {
+public class AmountRequestDTO {
 
     private BigDecimal amount;
 
